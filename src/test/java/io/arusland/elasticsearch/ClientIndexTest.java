@@ -6,6 +6,7 @@ import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.junit.After;
 import org.junit.Before;
@@ -79,6 +80,63 @@ public class ClientIndexTest extends BaseClientTest {
         byte[] json = mapper.writeValueAsBytes(bean);
 
         IndexResponse response = client.prepareIndex("twitter555", "tweet", "1")
+                .setSource(json)
+                .get();
+
+        System.out.println(response);
+    }
+
+    @Test
+    public void testNestedObject() throws IOException {
+        XContentBuilder json = jsonBuilder()
+                .startObject()
+                .field("user", "Malik")
+                .field("postDate", new Date())
+                .field("message", "trying out Elasticsearch")
+                .field("info")
+                .startObject()
+                .field("age", 23)
+                .field("created", new Date())
+                .field("inner")
+                .startObject()
+                .field("abc", "xyz")
+                .field("ddd", 12.5D)
+                .endObject()
+                .endObject()
+                .endObject();
+
+        System.out.println(json.string());
+
+        IndexResponse response = client.prepareIndex("twitter777", "tweet", "1")
+                .setSource(json)
+                .get();
+
+        System.out.println(response);
+    }
+
+    @Test
+    public void testArrayObject() throws IOException {
+        XContentBuilder json = jsonBuilder()
+                .startObject()
+                .field("user", "Malik")
+                .field("postDate", new Date())
+                .field("message", "trying out Elasticsearch")
+                .startArray("group")
+                .startObject()
+                .field("name", "Corasr1")
+                .field("age", 45)
+                .endObject()
+                .startObject()
+                .field("name", "Max")
+                .field("age", 24)
+                .field("dep", "PGP")
+                .endObject()
+                .endArray()
+                .endObject();
+
+        System.out.println(json.string());
+
+        IndexResponse response = client.prepareIndex("twitter888", "tweet", "1")
                 .setSource(json)
                 .get();
 
